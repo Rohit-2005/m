@@ -1,0 +1,48 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main       # Trigger workflow on push to 'main' branch
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'     # Specify Node.js version if using JavaScript/Node.js
+
+      - name: Install Dependencies
+        run: npm install         # Install dependencies (update this based on your project language)
+
+      - name: Run Tests
+        run: npm test            # Run tests (modify as needed for your testing setup)
+
+      - name: Build Project
+        run: npm run build       # Build the project (modify as per your build command)
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && success()
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Deploy to Production
+        env:
+          DEPLOY_ENV: production # Set environment variable
+        run: |
+          echo "Deploying to Production"
+          # Add deployment commands here, e.g., using SSH, Rsync, or deploy scripts
+          # ssh user@host 'deploy command here'
